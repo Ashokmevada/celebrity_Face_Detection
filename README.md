@@ -1,1 +1,1 @@
-# celebrity_Face_Detection
+# Celebrity_Face_Detection
