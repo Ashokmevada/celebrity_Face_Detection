@@ -2,10 +2,12 @@ import sys,os
 from CelebrityFaceDetection.logger import logging
 from CelebrityFaceDetection.exception import AppException
 from CelebrityFaceDetection.components.data_ingestion import DataIngestion
+from CelebrityFaceDetection.components.model_trainer import ModelTrainer
 
+from CelebrityFaceDetection.entity.config_entity import (DataIngestionConfig,ModelTrainerConfig)
 
-from CelebrityFaceDetection.entity.config_entity import (DataIngestionConfig)
-from CelebrityFaceDetection.entity.artifacts_entity import (DataIngestionArtifact)
+from CelebrityFaceDetection.entity.artifacts_entity import (DataIngestionArtifact,ModelTrainerArtifact)
+import numpy as np
 
 
 class TrainPipeline:
@@ -29,18 +31,41 @@ class TrainPipeline:
                 logging.info(
                     "Exited the start_data_ingestion method of TrainPipeline class"
                 )
-
+    
                 return data_ingestion_artifact
 
             except Exception as e:
                 raise AppException(e, sys)
+            
+
+    def start_model_trainer(self) -> ModelTrainerArtifact:
+         
+         try:
+              
+              model_trainer = ModelTrainer(model_trainer_config= self.model_trainer_config , dataset_directory = ModelTrainerConfig.dataset_path)
+
+              model_trainer_artifact = model_trainer.initiate_model_trainer()       
+
+              return model_trainer_artifact          
+
+
+
+         except Exception as e:
+              raise AppException(e, sys)
+         
+
+         
+         
+
         
 
     def run_pipeline(self) -> None:
             
             try:
                 
-                data_ingestion_artifact = self.start_data_ingestion()          
+                data_ingestion_artifact = self.start_data_ingestion() 
+
+                model_trainer_artifact = self.start_model_trainer()         
 
             
             except Exception as e:
