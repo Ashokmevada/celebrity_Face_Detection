@@ -13,6 +13,7 @@ import numpy as np
 class TrainPipeline:
     def __init__(self):
         self.data_ingestion_config = DataIngestionConfig()
+        self.model_trainer_config = ModelTrainerConfig()
         
 
     def start_data_ingestion(self)-> DataIngestionArtifact:
@@ -63,7 +64,7 @@ class TrainPipeline:
             
             try:
                 
-                data_ingestion_artifact = self.start_data_ingestion() 
+                #data_ingestion_artifact = self.start_data_ingestion() 
 
                 model_trainer_artifact = self.start_model_trainer()         
 

@@ -1,6 +1,4 @@
 import os,sys
-import yaml
-from CelebrityFaceDetection.utils.main_utils import read_yaml_file
 from CelebrityFaceDetection.logger import logging
 from CelebrityFaceDetection.exception import AppException
 from CelebrityFaceDetection.entity.config_entity import ModelTrainerConfig
@@ -70,7 +68,7 @@ class ModelTrainer:
     
 
     
-    def get_embedding(face_img):
+    def get_embedding(self ,face_img):
 
         embedder = FaceNet()
         face_img = face_img.astype('float32') # 3D(160x160x3) # coinverting to float 32 for better performance
@@ -81,6 +79,9 @@ class ModelTrainer:
     
 
     def load_classes(self):
+
+        logging.info("Entered load_classes trainer method of ModelTraining Class")
+
 
         for sub_dir in os.listdir(self.directory):
             path = self.directory + '/' + sub_dir + '/'
@@ -94,9 +95,13 @@ class ModelTrainer:
     
     def train_facenet(self):
 
-        X , Y = self.load_classes()
+        logging.info("Entered train facenet method of ModelTraining Class")
 
-            
+
+        X , Y = self.load_classes()            
+
+        logging.info("Load Class completed")
+
 
         EMBEDDED_X = []
 
@@ -108,19 +113,17 @@ class ModelTrainer:
 
         # compressed NumPy archive file (.npz format)multiple array save in one file
 
-        np.savez_compressed('faces_embeddings.npz' , EMBEDDED_X , Y)
+        faces_embedder_folder_path = os.path.join('artifacts/models' , 'faces_embeddings.npz')
+
+        np.savez_compressed(faces_embedder_folder_path , EMBEDDED_X , Y)
 
         return EMBEDDED_X
-
-
-
 
 
 
     def initiate_model_trainer(self , ) -> ModelTrainerArtifact:
 
         logging.info("Entered initiate model trainer method of ModelTraining Class")
-
 
         try:
 
@@ -129,7 +132,7 @@ class ModelTrainer:
             EMBEDDED_X = self.train_facenet()
 
             face_embeddings = np.load("faces_embeddings.npz")
-
+           
             Y = face_embeddings['arr_1']
 
             encoder = LabelEncoder()
@@ -138,14 +141,19 @@ class ModelTrainer:
 
             X_train, X_test, y_train, y_test = train_test_split(EMBEDDED_X , Y , test_size=0.2 , shuffle=True , random_state=85)
 
-            SVM_model = SVC(kernel = 'linear' , probability=True)
+            SVM_model =  SVC(kernel = 'linear' , probability=True)
 
             SVM_model.fit(X_train,y_train)
 
             import pickle
 
-            with open('svm_model_160x160.pkl' , 'wb') as f:
+            svm_folder_path = os.path.join('artifacts/models' , 'svm_model_160x160.pkl')
+
+            with open(svm_folder_path , 'wb') as f:
                 pickle.dump(SVM_model , f)
+
+
+            return SVM_model
 
 
         except Exception as e:

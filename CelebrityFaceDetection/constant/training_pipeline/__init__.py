@@ -12,5 +12,5 @@ MODEL TRAINER related constant start with MODEL_TRAINER var name
 """
 MODEL_TRAINER_DIR_NAME: str = "model_trainer"
 
-DATASET_DIRECTORY_PATH = "artifacts\data_ingestion\feature_store\CelebrityFacesDataset"
+DATASET_DIRECTORY_PATH = "artifacts/data_ingestion/feature_store/CelebrityFacesDataset"
 
