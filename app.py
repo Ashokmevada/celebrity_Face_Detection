@@ -1,9 +1,10 @@
+from threading import Thread
 from CelebrityFaceDetection.logger import logging
 from CelebrityFaceDetection.pipeline.training_pipeline import TrainPipeline
-import sys,os
+import sys, os
 from CelebrityFaceDetection.pipeline.training_pipeline import TrainPipeline
 from CelebrityFaceDetection.utils.main_utils import decodeImage, encodeImageIntoBase64
-from flask import Flask, request, jsonify, render_template,Response
+from flask import Flask, request, jsonify, render_template, Response
 from flask_cors import CORS, cross_origin
 from CelebrityFaceDetection.constant.application import APP_HOST, APP_PORT
 import cv2 as cv
@@ -98,44 +99,43 @@ def predictRoute():
 
 cap = cv.VideoCapture(0)
 
+# Function to capture frames
+def capture_frames():
+    global cap, haarcascade, facenet, encoder, model
+    while cap.isOpened():
+        _, frame = cap.read()
+        rgb_img = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+        gray_img = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+
+        faces = haarcascade.detectMultiScale(gray_img, 1.3, 5)
+        
+        for x, y, w, h in faces:
+            img = rgb_img[y:y+h, x:x+w]
+            img = cv.resize(img, (160, 160))
+            img = np.expand_dims(img, axis=0)
+            ypred = facenet.embeddings(img)
+            face_name = model.predict(ypred)
+            encoder.transform(face_name)
+            cv.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 255), 10)
+            cv.putText(frame, str(face_name), (x, y-10), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3, cv.LINE_AA)
+        
+        cv.imshow("Face Recognition:", frame)
+
+        if cv.waitKey(1) & 0xFF == ord('q'):
+            break
+
+
 @app.route("/live" , methods = ['GET'])
 @cross_origin()
 def predictLive():
-    try:
-        
-        while cap.isOpened() :
+    global cap
+    if not cap.isOpened():
+        cap = cv.VideoCapture(0)
 
-            _ , frame = cap.read()
-            rgb_img = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-            gray_img = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    t = Thread(target=capture_frames)
+    t.start()
 
-            faces = haarcascade.detectMultiScale(gray_img , 1.3 , 5)
-            
-            for x,y,w,h in faces:
-                img = rgb_img[y:y+h , x:x+w]
-                img = cv.resize(img , (160,160))
-                img = np.expand_dims(img , axis = 0)
-                ypred = facenet.embeddings(img)
-                face_name = model.predict(ypred)
-                encoder.transform(face_name)
-                # final_name = encoder.inverse_transform(face_name)[0]
-                cv.rectangle(frame , (x,y) , (x+w , y+h) , (255,0,255) , 10)
-                cv.putText(frame , str(face_name) , (x,y-10) , cv.FONT_HERSHEY_SIMPLEX , 1 ,(0,0,255) , 3, cv.LINE_AA)
-
-                cv.imshow("Face Recognition:" , frame)
-
-
-                if cv.waitKey(1) & 0xFF == ord('q'):  # Check for 'q' key press
-                    cap.release()  # Release the camera
-                    cv.destroyAllWindows()  # Close OpenCV windows
-                    break
-
-
-       
-        
-    except ValueError as val:
-        print(val)
-        return Response("value not found inside json data")
+    return render_template("index.html")
 
 if __name__ == "__main__":
     clApp = ClientApp()

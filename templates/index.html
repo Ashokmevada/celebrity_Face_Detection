@@ -221,6 +221,9 @@
 		<div class="col-xl-6 col-md-6 col-sm-6">
 			<button id="send" type="button" class="btn btn-success col-12">Predict</button>
 		</div>
+		<div class="col-xl-6 col-md-6 col-sm-6">
+			<button id="startLiveAPI" class="btn btn-primary col-12">Start Live Detection</button>
+		</div>
 
 		<!-- change url value  -->
 
@@ -317,6 +320,34 @@
 				}
 			}
 		}
+
+		$(document).ready(function () {
+			$("#loading").hide();
+		
+			$('#startLiveAPI').click(function () {
+				startLiveAPI();
+			});
+		
+			// Function to start the live API
+			function startLiveAPI() {
+				$.ajax({
+					url: "/live", // Endpoint to start the live API
+					type: "GET",
+					success: function (response) {
+						console.log("Live API started successfully");
+						// Optionally handle success message or UI update
+					},
+					error: function (error) {
+						console.error("Error starting Live API", error);
+						// Handle error or show error message
+					}
+				});
+			}
+			// Other existing code...
+		});
+		
+
+		
 
 		$(document).ready(function () {
 			$("#loading").hide();
