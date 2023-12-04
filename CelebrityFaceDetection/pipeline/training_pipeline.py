@@ -64,7 +64,7 @@ class TrainPipeline:
             
             try:
                 
-                #data_ingestion_artifact = self.start_data_ingestion() 
+                data_ingestion_artifact = self.start_data_ingestion() 
 
                 model_trainer_artifact = self.start_model_trainer()         
 
