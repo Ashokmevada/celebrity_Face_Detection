@@ -26,4 +26,5 @@ tqdm
 ultralytics
 seaborn
 setuptools
+Gunicorn
 -e .
