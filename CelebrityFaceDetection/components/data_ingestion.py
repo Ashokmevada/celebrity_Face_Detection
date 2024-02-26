@@ -40,7 +40,7 @@ class DataIngestion:
 
             logging.info(f"Downloaded data from {dataset_url} into file {zip_file_path}")
 
-            return zip_file_path
+                
         
         except Exception as e:
             raise AppException(e , sys)

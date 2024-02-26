@@ -57,7 +57,7 @@ def predictRoute():
        
         rgb_img = cv.cvtColor(image, cv.COLOR_BGR2RGB)
         gray_img = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-
+    
         faces = haarcascade.detectMultiScale(gray_img , 1.3 , 5)
 
         """
